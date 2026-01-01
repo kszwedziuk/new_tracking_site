@@ -4,7 +4,7 @@ let filteredData = [];
 // Load data from Firebase
 async function loadData() {
     try {
-        const snapshot = await db.collection('items').orderBy('name').get();
+        const snapshot = await db.collection('items').orderBy('createdAt', 'desc').get();
         allData = [];
         snapshot.forEach(doc => {
             allData.push({
@@ -12,12 +12,63 @@ async function loadData() {
                 ...doc.data()
             });
         });
+        await loadCustomCategories();
         populateFilters();
         filteredData = [...allData];
         displayData();
     } catch (error) {
         console.error('Error loading data:', error);
         document.getElementById('results').innerHTML = '<p>Error loading data. Check console.</p>';
+    }
+}
+
+// Load custom categories from Firebase
+async function loadCustomCategories() {
+    try {
+        const doc = await db.collection('settings').doc('customCategories').get();
+        if (doc.exists) {
+            const customCats = doc.data().categories || [];
+            const categorySelect = document.getElementById('category');
+            
+            // Remove old custom categories (anything after "Other")
+            const options = Array.from(categorySelect.options);
+            const otherIndex = options.findIndex(opt => opt.value === 'Other');
+            while (categorySelect.options.length > otherIndex + 1) {
+                categorySelect.remove(otherIndex + 1);
+            }
+            
+            // Add custom categories before "Other"
+            customCats.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categorySelect.insertBefore(option, categorySelect.options[otherIndex]);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading custom categories:', error);
+    }
+}
+
+// Save custom category to Firebase
+async function saveCustomCategory(category) {
+    try {
+        const doc = await db.collection('settings').doc('customCategories').get();
+        let categories = [];
+        
+        if (doc.exists) {
+            categories = doc.data().categories || [];
+        }
+        
+        if (!categories.includes(category)) {
+            categories.push(category);
+            categories.sort();
+            await db.collection('settings').doc('customCategories').set({
+                categories: categories
+            });
+        }
+    } catch (error) {
+        console.error('Error saving custom category:', error);
     }
 }
 
@@ -78,9 +129,11 @@ function displayData() {
     let html = '<table><thead><tr>';
     html += '<th>Category</th>';
     html += '<th>Name</th>';
+    html += '<th>Creator</th>';
     html += '<th>Tags</th>';
     html += '<th>Rating</th>';
     html += '<th>Comments</th>';
+    html += '<th>Date Added</th>';
     html += '<th>Actions</th>';
     html += '</tr></thead><tbody>';
     
@@ -88,6 +141,7 @@ function displayData() {
         html += '<tr>';
         html += `<td>${item.category}</td>`;
         html += `<td>${item.name}</td>`;
+        html += `<td>${item.creator || ''}</td>`;
         html += `<td><div class="tags">`;
         if (item.tags && item.tags.length > 0) {
             item.tags.forEach(tag => {
@@ -97,6 +151,15 @@ function displayData() {
         html += `</div></td>`;
         html += `<td>${item.rating}/10</td>`;
         html += `<td>${item.comments || ''}</td>`;
+        
+        // Format date
+        let dateStr = '';
+        if (item.createdAt) {
+            const date = item.createdAt.toDate();
+            dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        html += `<td>${dateStr}</td>`;
+        
         html += `<td><button class="delete-btn" onclick="deleteItem('${item.id}')">Delete</button></td>`;
         html += '</tr>';
     });
@@ -109,8 +172,20 @@ function displayData() {
 document.getElementById('addForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const category = document.getElementById('category').value;
+    let category = document.getElementById('category').value;
+    const customCategory = document.getElementById('customCategory').value.trim();
+    
+    // If "Other" is selected and custom category provided, use custom category
+    if (category === 'Other' && customCategory) {
+        category = customCategory;
+        await saveCustomCategory(category);
+    } else if (category === 'Other' && !customCategory) {
+        alert('Please enter a custom category');
+        return;
+    }
+    
     const name = document.getElementById('name').value;
+    const creator = document.getElementById('creator').value;
     const rating = parseInt(document.getElementById('rating').value);
     const tagsInput = document.getElementById('tags').value;
     const comments = document.getElementById('comments').value;
@@ -125,6 +200,7 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
         await db.collection('items').add({
             category: category,
             name: name,
+            creator: creator,
             tags: tags,
             rating: rating,
             comments: comments,
@@ -141,6 +217,7 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
         
         // Reset form
         document.getElementById('addForm').reset();
+        document.getElementById('customCategoryGroup').style.display = 'none';
         
         // Reload data
         await loadData();
@@ -179,6 +256,18 @@ document.getElementById('categoryFilter').addEventListener('change', filterData)
 document.getElementById('tagFilter').addEventListener('change', filterData);
 document.getElementById('ratingFilter').addEventListener('change', filterData);
 document.getElementById('resetButton').addEventListener('click', resetFilters);
+
+// Show/hide custom category input when "Other" is selected
+document.getElementById('category').addEventListener('change', function() {
+    const customCategoryGroup = document.getElementById('customCategoryGroup');
+    if (this.value === 'Other') {
+        customCategoryGroup.style.display = 'flex';
+        document.getElementById('customCategory').required = true;
+    } else {
+        customCategoryGroup.style.display = 'none';
+        document.getElementById('customCategory').required = false;
+    }
+});
 
 // Load data when page loads
 loadData();
