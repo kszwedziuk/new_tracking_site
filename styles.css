@@ -11,13 +11,59 @@ body {
     padding: 20px;
 }
 
+/* Login Screen */
+.login-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.login-box {
+    background-color: white;
+    border: 1px solid black;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+.login-box h1 {
+    margin-bottom: 10px;
+}
+
+.login-box p {
+    margin-bottom: 20px;
+}
+
+.login-box input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid black;
+    margin-bottom: 15px;
+    font-size: 1em;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
-h1 {
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 30px;
+}
+
+.header h1 {
+    margin: 0;
 }
 
 h2 {
@@ -134,6 +180,28 @@ th, td {
 th {
     background-color: #f0f0f0;
     font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
+th:hover {
+    background-color: #e0e0e0;
+}
+
+th.sortable::after {
+    content: ' ⇅';
+    opacity: 0.3;
+}
+
+th.sorted-asc::after {
+    content: ' ▲';
+    opacity: 1;
+}
+
+th.sorted-desc::after {
+    content: ' ▼';
+    opacity: 1;
 }
 
 tr:nth-child(even) {
