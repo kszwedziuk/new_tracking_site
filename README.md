@@ -1,2 +1,3 @@
-# new_tracking_site
-Personal tracking site with Firebase
+# Kristian Szwedziuk - 2026 Tracking
+
+Personal Tracking App
