@@ -211,10 +211,8 @@ function displayData() {
     }
     
     let html = '<table><thead><tr>';
-    html += '<th class="sortable" data-column="category">Category</th>';
     html += '<th class="sortable" data-column="name">Name</th>';
     html += '<th class="sortable" data-column="creator">Creator</th>';
-    html += '<th class="sortable" data-column="dateExperienced">Date Experienced</th>';
     html += '<th>Tags</th>';
     html += '<th class="sortable" data-column="rating">Rating</th>';
     html += '<th>Comments</th>';
@@ -224,15 +222,8 @@ function displayData() {
     
     filteredData.forEach(item => {
         html += '<tr>';
-        html += `<td>${item.category}</td>`;
         html += `<td>${item.name}</td>`;
         html += `<td>${item.creator || ''}</td>`;
-        
-        let dateExpStr = '';
-        if (item.dateExperienced) {
-            dateExpStr = new Date(item.dateExperienced).toLocaleDateString();
-        }
-        html += `<td>${dateExpStr}</td>`;
         
         html += `<td><div class="tags">`;
         if (item.tags && item.tags.length > 0) {
@@ -290,10 +281,12 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
     
     const name = document.getElementById('name').value;
     const creator = document.getElementById('creator').value;
-    const dateExperienced = document.getElementById('dateExperienced').value;
     const rating = parseInt(document.getElementById('rating').value);
     const tagsInput = document.getElementById('tags').value;
     const comments = document.getElementById('comments').value;
+    
+    // Set dateExperienced to today's date automatically
+    const today = new Date().toISOString().split('T')[0];
     
     const tags = tagsInput
         .split(',')
@@ -305,7 +298,7 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
             category: category,
             name: name,
             creator: creator,
-            dateExperienced: dateExperienced,
+            dateExperienced: today,
             tags: tags,
             rating: rating,
             comments: comments,
