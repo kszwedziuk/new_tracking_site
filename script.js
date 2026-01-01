@@ -4,7 +4,7 @@ let sortColumn = null;
 let sortDirection = 'asc';
 
 // Password protection
-const CORRECT_PASSWORD = 'mytracker2026'; // CHANGE THIS TO YOUR PASSWORD
+const CORRECT_PASSWORD = 'themagicword'; // CHANGE THIS TO YOUR PASSWORD
 
 function checkPassword() {
     const savedPassword = sessionStorage.getItem('trackerAuth');
