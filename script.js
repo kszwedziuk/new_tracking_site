@@ -1,5 +1,49 @@
 let allData = [];
 let filteredData = [];
+let sortColumn = null;
+let sortDirection = 'asc';
+
+// Password protection
+const CORRECT_PASSWORD = 'mytracker2026'; // CHANGE THIS TO YOUR PASSWORD
+
+function checkPassword() {
+    const savedPassword = sessionStorage.getItem('trackerAuth');
+    if (savedPassword === CORRECT_PASSWORD) {
+        showMainContent();
+        loadData();
+    }
+}
+
+function showMainContent() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+}
+
+function hideMainContent() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('mainContent').style.display = 'none';
+}
+
+document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const password = document.getElementById('passwordInput').value;
+    
+    if (password === CORRECT_PASSWORD) {
+        sessionStorage.setItem('trackerAuth', password);
+        showMainContent();
+        loadData();
+    } else {
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('passwordInput').value = '';
+    }
+});
+
+document.getElementById('logoutButton').addEventListener('click', () => {
+    sessionStorage.removeItem('trackerAuth');
+    hideMainContent();
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('loginError').style.display = 'none';
+});
 
 // Load data from Firebase
 async function loadData() {
@@ -114,7 +158,54 @@ function filterData() {
         return true;
     });
     
+    // Re-apply current sort if exists
+    if (sortColumn) {
+        applySortToFilteredData();
+    }
+    
     displayData();
+}
+
+// Sort data
+function sortData(column) {
+    if (sortColumn === column) {
+        // Toggle direction if clicking same column
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        // New column, default to ascending
+        sortColumn = column;
+        sortDirection = 'asc';
+    }
+    
+    applySortToFilteredData();
+    displayData();
+}
+
+function applySortToFilteredData() {
+    filteredData.sort((a, b) => {
+        let aVal = a[sortColumn];
+        let bVal = b[sortColumn];
+        
+        // Handle special cases
+        if (sortColumn === 'createdAt') {
+            aVal = a.createdAt ? a.createdAt.toDate().getTime() : 0;
+            bVal = b.createdAt ? b.createdAt.toDate().getTime() : 0;
+        } else if (sortColumn === 'dateExperienced') {
+            aVal = a.dateExperienced ? new Date(a.dateExperienced).getTime() : 0;
+            bVal = b.dateExperienced ? new Date(b.dateExperienced).getTime() : 0;
+        } else if (sortColumn === 'rating') {
+            aVal = a.rating || 0;
+            bVal = b.rating || 0;
+        } else {
+            // String comparison
+            aVal = (aVal || '').toString().toLowerCase();
+            bVal = (bVal || '').toString().toLowerCase();
+        }
+        
+        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+    });
 }
 
 // Display data in table
@@ -127,13 +218,14 @@ function displayData() {
     }
     
     let html = '<table><thead><tr>';
-    html += '<th>Category</th>';
-    html += '<th>Name</th>';
-    html += '<th>Creator</th>';
+    html += '<th class="sortable" data-column="category">Category</th>';
+    html += '<th class="sortable" data-column="name">Name</th>';
+    html += '<th class="sortable" data-column="creator">Creator</th>';
+    html += '<th class="sortable" data-column="dateExperienced">Date Experienced</th>';
     html += '<th>Tags</th>';
-    html += '<th>Rating</th>';
+    html += '<th class="sortable" data-column="rating">Rating</th>';
     html += '<th>Comments</th>';
-    html += '<th>Date Added</th>';
+    html += '<th class="sortable" data-column="createdAt">Date Added</th>';
     html += '<th>Actions</th>';
     html += '</tr></thead><tbody>';
     
@@ -142,6 +234,14 @@ function displayData() {
         html += `<td>${item.category}</td>`;
         html += `<td>${item.name}</td>`;
         html += `<td>${item.creator || ''}</td>`;
+        
+        // Format date experienced
+        let dateExpStr = '';
+        if (item.dateExperienced) {
+            dateExpStr = new Date(item.dateExperienced).toLocaleDateString();
+        }
+        html += `<td>${dateExpStr}</td>`;
+        
         html += `<td><div class="tags">`;
         if (item.tags && item.tags.length > 0) {
             item.tags.forEach(tag => {
@@ -152,7 +252,7 @@ function displayData() {
         html += `<td>${item.rating}/10</td>`;
         html += `<td>${item.comments || ''}</td>`;
         
-        // Format date
+        // Format date added
         let dateStr = '';
         if (item.createdAt) {
             const date = item.createdAt.toDate();
@@ -163,6 +263,26 @@ function displayData() {
         html += `<td><button class="delete-btn" onclick="deleteItem('${item.id}')">Delete</button></td>`;
         html += '</tr>';
     });
+    
+    html += '</tbody></table>';
+    resultsDiv.innerHTML = html;
+    
+    // Add click handlers for sorting
+    document.querySelectorAll('th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            const column = th.dataset.column;
+            sortData(column);
+        });
+        
+        // Update sort indicators
+        if (th.dataset.column === sortColumn) {
+            th.classList.remove('sorted-asc', 'sorted-desc');
+            th.classList.add(sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        } else {
+            th.classList.remove('sorted-asc', 'sorted-desc');
+        }
+    });
+}
     
     html += '</tbody></table>';
     resultsDiv.innerHTML = html;
@@ -186,6 +306,7 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
     
     const name = document.getElementById('name').value;
     const creator = document.getElementById('creator').value;
+    const dateExperienced = document.getElementById('dateExperienced').value;
     const rating = parseInt(document.getElementById('rating').value);
     const tagsInput = document.getElementById('tags').value;
     const comments = document.getElementById('comments').value;
@@ -201,6 +322,7 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
             category: category,
             name: name,
             creator: creator,
+            dateExperienced: dateExperienced,
             tags: tags,
             rating: rating,
             comments: comments,
@@ -247,6 +369,8 @@ function resetFilters() {
     document.getElementById('categoryFilter').value = '';
     document.getElementById('tagFilter').value = '';
     document.getElementById('ratingFilter').value = '';
+    sortColumn = null;
+    sortDirection = 'asc';
     filteredData = [...allData];
     displayData();
 }
@@ -270,4 +394,4 @@ document.getElementById('category').addEventListener('change', function() {
 });
 
 // Load data when page loads
-loadData();
+checkPassword();
