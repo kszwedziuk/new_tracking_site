@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>My 2026 Tracker</h1>
+        
+        <!-- Add New Entry Form -->
+        <div class="form-section">
+            <h2>Add New Entry</h2>
+            <form id="addForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <select id="category" required>
+                            <option value="">Select...</option>
+                            <option value="Book">Book</option>
+                            <option value="Film">Film</option>
+                            <option value="TV Show">TV Show</option>
+                            <option value="Album">Album</option>
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="Podcast">Podcast</option>
+                            <option value="Concert">Concert</option>
+                            <option value="Museum">Museum</option>
+                            <option value="Play">Play</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rating">Rating (1-10):</label>
+                        <input type="number" id="rating" min="1" max="10" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tags">Tags (comma-separated):</label>
+                    <input type="text" id="tags" placeholder="e.g. fiction, thriller, suspense">
+                </div>
+                
+                <div class="form-group">
+                    <label for="comments">Comments:</label>
+                    <textarea id="comments" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary">Add Entry</button>
+            </form>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters">
+            <h2>Filters</h2>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="categoryFilter">Category:</label>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="tagFilter">Tag:</label>
+                    <select id="tagFilter">
+                        <option value="">All Tags</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="ratingFilter">Min Rating:</label>
+                    <select id="ratingFilter">
+                        <option value="">Any Rating</option>
+                        <option value="1">1+</option>
+                        <option value="2">2+</option>
+                        <option value="3">3+</option>
+                        <option value="4">4+</option>
+                        <option value="5">5+</option>
+                        <option value="6">6+</option>
+                        <option value="7">7+</option>
+                        <option value="8">8+</option>
+                        <option value="9">9+</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+                
+                <button id="resetButton" class="btn-secondary">Reset Filters</button>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div id="results">
+            <p>Loading...</p>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Your configuration and app script -->
+    <script src="firebase-config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
