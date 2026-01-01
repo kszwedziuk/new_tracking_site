@@ -7,8 +7,26 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>My 2026 Tracker</h1>
+    <!-- Password Protection Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <h1>My Tracker</h1>
+            <p>Please enter password to access</p>
+            <form id="loginForm">
+                <input type="password" id="passwordInput" placeholder="Enter password" required>
+                <button type="submit" class="btn-primary">Enter</button>
+            </form>
+            <p id="loginError" class="error-message" style="display: none;">Incorrect password</p>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden until logged in) -->
+    <div id="mainContent" style="display: none;">
+        <div class="container">
+            <div class="header">
+                <h1>My 2026 Tracker</h1>
+                <button id="logoutButton" class="btn-secondary">Logout</button>
+            </div>
         
         <!-- Add New Entry Form -->
         <div class="form-section">
@@ -45,6 +63,11 @@
                     <div class="form-group">
                         <label for="creator">Creator/Artist/Author:</label>
                         <input type="text" id="creator" placeholder="e.g. Director, Author, Chef">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dateExperienced">Date Experienced:</label>
+                        <input type="date" id="dateExperienced" required>
                     </div>
                     
                     <div class="form-group">
@@ -110,6 +133,7 @@
         <div id="results">
             <p>Loading...</p>
         </div>
+    </div>
     </div>
     
     <!-- Firebase SDK -->
