@@ -4,7 +4,7 @@ let sortColumn = null;
 let sortDirection = 'asc';
 
 // Password protection
-const CORRECT_PASSWORD = 'password1'; // CHANGE THIS TO YOUR PASSWORD
+const CORRECT_PASSWORD = 'password1';
 
 function checkPassword() {
     const savedPassword = sessionStorage.getItem('trackerAuth');
@@ -74,14 +74,12 @@ async function loadCustomCategories() {
             const customCats = doc.data().categories || [];
             const categorySelect = document.getElementById('category');
             
-            // Remove old custom categories (anything after "Other")
             const options = Array.from(categorySelect.options);
             const otherIndex = options.findIndex(opt => opt.value === 'Other');
             while (categorySelect.options.length > otherIndex + 1) {
                 categorySelect.remove(otherIndex + 1);
             }
             
-            // Add custom categories before "Other"
             customCats.forEach(cat => {
                 const option = document.createElement('option');
                 option.value = cat;
@@ -158,7 +156,6 @@ function filterData() {
         return true;
     });
     
-    // Re-apply current sort if exists
     if (sortColumn) {
         applySortToFilteredData();
     }
@@ -169,10 +166,8 @@ function filterData() {
 // Sort data
 function sortData(column) {
     if (sortColumn === column) {
-        // Toggle direction if clicking same column
         sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
-        // New column, default to ascending
         sortColumn = column;
         sortDirection = 'asc';
     }
@@ -186,7 +181,6 @@ function applySortToFilteredData() {
         let aVal = a[sortColumn];
         let bVal = b[sortColumn];
         
-        // Handle special cases
         if (sortColumn === 'createdAt') {
             aVal = a.createdAt ? a.createdAt.toDate().getTime() : 0;
             bVal = b.createdAt ? b.createdAt.toDate().getTime() : 0;
@@ -197,7 +191,6 @@ function applySortToFilteredData() {
             aVal = a.rating || 0;
             bVal = b.rating || 0;
         } else {
-            // String comparison
             aVal = (aVal || '').toString().toLowerCase();
             bVal = (bVal || '').toString().toLowerCase();
         }
@@ -235,7 +228,6 @@ function displayData() {
         html += `<td>${item.name}</td>`;
         html += `<td>${item.creator || ''}</td>`;
         
-        // Format date experienced
         let dateExpStr = '';
         if (item.dateExperienced) {
             dateExpStr = new Date(item.dateExperienced).toLocaleDateString();
@@ -252,7 +244,6 @@ function displayData() {
         html += `<td>${item.rating}/10</td>`;
         html += `<td>${item.comments || ''}</td>`;
         
-        // Format date added
         let dateStr = '';
         if (item.createdAt) {
             const date = item.createdAt.toDate();
@@ -267,14 +258,12 @@ function displayData() {
     html += '</tbody></table>';
     resultsDiv.innerHTML = html;
     
-    // Add click handlers for sorting
     document.querySelectorAll('th.sortable').forEach(th => {
         th.addEventListener('click', () => {
             const column = th.dataset.column;
             sortData(column);
         });
         
-        // Update sort indicators
         if (th.dataset.column === sortColumn) {
             th.classList.remove('sorted-asc', 'sorted-desc');
             th.classList.add(sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
@@ -282,10 +271,6 @@ function displayData() {
             th.classList.remove('sorted-asc', 'sorted-desc');
         }
     });
-}
-    
-    html += '</tbody></table>';
-    resultsDiv.innerHTML = html;
 }
 
 // Add new item
@@ -295,7 +280,6 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
     let category = document.getElementById('category').value;
     const customCategory = document.getElementById('customCategory').value.trim();
     
-    // If "Other" is selected and custom category provided, use custom category
     if (category === 'Other' && customCategory) {
         category = customCategory;
         await saveCustomCategory(category);
@@ -311,7 +295,6 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
     const tagsInput = document.getElementById('tags').value;
     const comments = document.getElementById('comments').value;
     
-    // Parse tags
     const tags = tagsInput
         .split(',')
         .map(tag => tag.trim())
@@ -329,7 +312,6 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        // Show success message
         const formSection = document.querySelector('.form-section');
         const successMsg = document.createElement('div');
         successMsg.className = 'success-message';
@@ -337,11 +319,9 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
         formSection.insertBefore(successMsg, formSection.firstChild);
         setTimeout(() => successMsg.remove(), 3000);
         
-        // Reset form
         document.getElementById('addForm').reset();
         document.getElementById('customCategoryGroup').style.display = 'none';
         
-        // Reload data
         await loadData();
     } catch (error) {
         console.error('Error adding item:', error);
@@ -381,7 +361,6 @@ document.getElementById('tagFilter').addEventListener('change', filterData);
 document.getElementById('ratingFilter').addEventListener('change', filterData);
 document.getElementById('resetButton').addEventListener('click', resetFilters);
 
-// Show/hide custom category input when "Other" is selected
 document.getElementById('category').addEventListener('change', function() {
     const customCategoryGroup = document.getElementById('customCategoryGroup');
     if (this.value === 'Other') {
@@ -393,5 +372,4 @@ document.getElementById('category').addEventListener('change', function() {
     }
 });
 
-// Load data when page loads
 checkPassword();
