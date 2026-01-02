@@ -4,7 +4,7 @@ let sortColumn = null;
 let sortDirection = 'asc';
 
 // Password protection
-const CORRECT_PASSWORD = 'password1';
+const CORRECT_PASSWORD = 'password1'; // CHANGE THIS TO YOUR PASSWORD
 
 function checkPassword() {
     const savedPassword = sessionStorage.getItem('trackerAuth');
@@ -350,18 +350,54 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
 });
 
 // Delete item
-async function deleteItem(id) {
-    if (!confirm('Are you sure you want to delete this item?')) {
+async function deleteSelectedItem() {
+    if (!selectedItemId) return;
+    
+    const selectedItem = filteredData.find(item => item.id === selectedItemId);
+    if (!selectedItem) return;
+    
+    if (!confirm(`Are you sure you want to delete "${selectedItem.name}"?`)) {
         return;
     }
     
     try {
-        await db.collection('items').doc(id).delete();
+        await db.collection('items').doc(selectedItemId).delete();
+        selectedItemId = null;
+        updateSelectionUI();
         await loadData();
     } catch (error) {
         console.error('Error deleting item:', error);
         alert('Error deleting item. Check console.');
     }
+}
+
+// Edit item
+function editSelectedItem() {
+    if (!selectedItemId) return;
+    
+    const selectedItem = allData.find(item => item.id === selectedItemId);
+    if (!selectedItem) return;
+    
+    // Populate form with selected item's data
+    document.getElementById('category').value = selectedItem.category;
+    document.getElementById('name').value = selectedItem.name;
+    document.getElementById('creator').value = selectedItem.creator || '';
+    document.getElementById('rating').value = selectedItem.rating;
+    document.getElementById('tags').value = selectedItem.tags ? selectedItem.tags.join(', ') : '';
+    document.getElementById('comments').value = selectedItem.comments || '';
+    
+    // Change form to edit mode
+    const formSection = document.querySelector('.form-section');
+    const submitButton = document.querySelector('#addForm button[type="submit"]');
+    
+    formSection.querySelector('h2').textContent = 'Edit Entry';
+    submitButton.textContent = 'Update Entry';
+    
+    // Store the ID we're editing
+    document.getElementById('addForm').dataset.editingId = selectedItemId;
+    
+    // Scroll to form
+    formSection.scrollIntoView({ behavior: 'smooth' });
 }
 
 // Reset filters
