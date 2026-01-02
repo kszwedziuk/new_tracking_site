@@ -110,6 +110,70 @@ h2 {
     width: 100px;
 }
 
+/* Custom Rating Slider */
+.rating-slider-group {
+    flex: 1;
+    min-width: 300px;
+}
+
+.custom-slider {
+    margin-top: 10px;
+}
+
+.slider-field {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    gap: 15px;
+}
+
+.slider-value-left,
+.slider-value-right {
+    font-size: 16px;
+    color: #045fa4;
+    font-weight: 600;
+}
+
+.custom-slider input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: #ddd;
+    border-radius: 5px;
+    outline: none;
+    border: none;
+    cursor: pointer;
+}
+
+.custom-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #045fa4;
+    border-radius: 50%;
+    border: 1px solid #045fa4;
+    cursor: pointer;
+}
+
+.custom-slider input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #045fa4;
+    border-radius: 50%;
+    border: 1px solid #045fa4;
+    cursor: pointer;
+}
+
+.custom-slider input[type="range"]::-moz-range-progress {
+    background: #045fa4;
+}
+
+#ratingValue {
+    font-weight: bold;
+    color: #045fa4;
+}
+
 .btn-primary {
     padding: 10px 20px;
     background-color: black;
