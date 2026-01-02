@@ -233,18 +233,16 @@ function displayData() {
 
 function selectItem(itemId) {
     if (selectedItemId === itemId) {
-        // Deselecting - clear the form if in edit mode
+        // Deselecting - always clear the form
         selectedItemId = null;
         
-        // Reset form if it was in edit mode
-        if (document.getElementById('addForm').dataset.editingId) {
-            document.getElementById('addForm').reset();
-            document.getElementById('ratingValue').textContent = '5';
-            document.querySelector('.form-section h2').textContent = 'Add New Entry';
-            document.querySelector('#addForm button[type="submit"]').textContent = 'Add Entry';
-            delete document.getElementById('addForm').dataset.editingId;
-            document.getElementById('customCategoryGroup').style.display = 'none';
-        }
+        // Clear and reset the form
+        document.getElementById('addForm').reset();
+        document.getElementById('ratingValue').textContent = '5';
+        document.querySelector('.form-section h2').textContent = 'Add New Entry';
+        document.querySelector('#addForm button[type="submit"]').textContent = 'Add Entry';
+        delete document.getElementById('addForm').dataset.editingId;
+        document.getElementById('customCategoryGroup').style.display = 'none';
     } else {
         selectedItemId = itemId;
     }
