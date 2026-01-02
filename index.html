@@ -28,118 +28,118 @@
                 <button id="logoutButton" class="btn-secondary">Logout</button>
             </div>
         
-        <!-- Add New Entry Form -->
-        <div class="form-section">
-            <h2>Add New Entry</h2>
-            <form id="addForm">
-                <div class="form-row">
+            <!-- Add New Entry Form -->
+            <div class="form-section">
+                <h2>Add New Entry</h2>
+                <form id="addForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="category">Category:</label>
+                            <select id="category" required>
+                                <option value="">Select...</option>
+                                <option value="Book">Book</option>
+                                <option value="Film">Film</option>
+                                <option value="TV Show">TV Show</option>
+                                <option value="Album">Album</option>
+                                <option value="Restaurant">Restaurant</option>
+                                <option value="Podcast">Podcast</option>
+                                <option value="Concert">Concert</option>
+                                <option value="Museum">Museum</option>
+                                <option value="Play">Play</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" id="customCategoryGroup" style="display: none;">
+                            <label for="customCategory">Custom Category:</label>
+                            <input type="text" id="customCategory" placeholder="Enter custom category">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" id="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="creator">Creator/Artist/Author:</label>
+                            <input type="text" id="creator" placeholder="e.g. Director, Author, Chef">
+                        </div>
+                        
+                        <div class="form-group" style="display: none;">
+                            <input type="date" id="dateExperienced">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="rating">Rating (1-10):</label>
+                            <input type="number" id="rating" min="1" max="10" required>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
-                        <label for="category">Category:</label>
-                        <select id="category" required>
-                            <option value="">Select...</option>
-                            <option value="Book">Book</option>
-                            <option value="Film">Film</option>
-                            <option value="TV Show">TV Show</option>
-                            <option value="Album">Album</option>
-                            <option value="Restaurant">Restaurant</option>
-                            <option value="Podcast">Podcast</option>
-                            <option value="Concert">Concert</option>
-                            <option value="Museum">Museum</option>
-                            <option value="Play">Play</option>
-                            <option value="Other">Other</option>
+                        <label for="tags">Tags (comma-separated):</label>
+                        <input type="text" id="tags" placeholder="e.g. fiction, thriller, suspense">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="comments">Comments:</label>
+                        <textarea id="comments" rows="3"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">Add Entry</button>
+                </form>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filters">
+                <h2>Filters</h2>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="categoryFilter">Category:</label>
+                        <select id="categoryFilter">
+                            <option value="">All Categories</option>
                         </select>
                     </div>
                     
-                    <div class="form-group" id="customCategoryGroup" style="display: none;">
-                        <label for="customCategory">Custom Category:</label>
-                        <input type="text" id="customCategory" placeholder="Enter custom category">
+                    <div class="filter-group">
+                        <label for="tagFilter">Tag:</label>
+                        <select id="tagFilter">
+                            <option value="">All Tags</option>
+                        </select>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="name">Name:</label>
-                        <input type="text" id="name" required>
+                    <div class="filter-group">
+                        <label for="ratingFilter">Min Rating:</label>
+                        <select id="ratingFilter">
+                            <option value="">Any Rating</option>
+                            <option value="1">1+</option>
+                            <option value="2">2+</option>
+                            <option value="3">3+</option>
+                            <option value="4">4+</option>
+                            <option value="5">5+</option>
+                            <option value="6">6+</option>
+                            <option value="7">7+</option>
+                            <option value="8">8+</option>
+                            <option value="9">9+</option>
+                            <option value="10">10</option>
+                        </select>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="creator">Creator/Artist/Author:</label>
-                        <input type="text" id="creator" placeholder="e.g. Director, Author, Chef">
-                    </div>
-                    
-                    <div class="form-group" style="display: none;">
-                        <input type="date" id="dateExperienced">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="rating">Rating (1-10):</label>
-                        <input type="number" id="rating" min="1" max="10" required>
-                    </div>
+                    <button id="resetButton" class="btn-secondary">Reset Filters</button>
                 </div>
-                
-                <div class="form-group">
-                    <label for="tags">Tags (comma-separated):</label>
-                    <input type="text" id="tags" placeholder="e.g. fiction, thriller, suspense">
-                </div>
-                
-                <div class="form-group">
-                    <label for="comments">Comments:</label>
-                    <textarea id="comments" rows="3"></textarea>
-                </div>
-                
-                <button type="submit" class="btn-primary">Add Entry</button>
-            </form>
-        </div>
-        
-        <!-- Filters -->
-        <div class="filters">
-            <h2>Filters</h2>
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label for="categoryFilter">Category:</label>
-                    <select id="categoryFilter">
-                        <option value="">All Categories</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="tagFilter">Tag:</label>
-                    <select id="tagFilter">
-                        <option value="">All Tags</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label for="ratingFilter">Min Rating:</label>
-                    <select id="ratingFilter">
-                        <option value="">Any Rating</option>
-                        <option value="1">1+</option>
-                        <option value="2">2+</option>
-                        <option value="3">3+</option>
-                        <option value="4">4+</option>
-                        <option value="5">5+</option>
-                        <option value="6">6+</option>
-                        <option value="7">7+</option>
-                        <option value="8">8+</option>
-                        <option value="9">9+</option>
-                        <option value="10">10</option>
-                    </select>
-                </div>
-                
-                <button id="resetButton" class="btn-secondary">Reset Filters</button>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <p id="selectionMessage">Click a row to select an item</p>
+                <button id="editButton" class="btn-secondary" disabled>Edit Selected</button>
+                <button id="deleteButton" class="btn-secondary" disabled>Delete Selected</button>
+            </div>
+            
+            <!-- Results -->
+            <div id="results">
+                <p>Loading...</p>
             </div>
         </div>
-        
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <p id="selectionMessage">Click a row to select an item</p>
-            <button id="editButton" class="btn-secondary" disabled>Edit Selected</button>
-            <button id="deleteButton" class="btn-secondary" disabled>Delete Selected</button>
-        </div>
-        
-        <!-- Results -->
-        <div id="results">
-            <p>Loading...</p>
-        </div>
-    </div>
     </div>
     
     <!-- Firebase SDK -->
