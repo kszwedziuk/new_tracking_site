@@ -138,10 +138,21 @@
             -webkit-appearance: none;
             flex: 1;
             height: 1px;
-            background: black;
+            background: transparent;
+            border-bottom: 1px solid black;
             border-radius: 0;
             outline: none;
             cursor: pointer;
+        }
+
+        .slider-field input[type="range"]::-webkit-slider-runnable-track {
+            height: 1px;
+            background: black;
+        }
+
+        .slider-field input[type="range"]::-moz-range-track {
+            height: 1px;
+            background: black;
         }
 
         .slider-field input[type="range"]::-webkit-slider-thumb {
