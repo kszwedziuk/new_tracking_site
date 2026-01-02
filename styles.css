@@ -164,6 +164,19 @@ h2 {
     background-color: white;
 }
 
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#selectionMessage {
+    font-style: italic;
+    color: #666;
+}
+
 /* Table */
 table {
     width: 100%;
@@ -181,8 +194,22 @@ th {
     display: none;
 }
 
+tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
 tr:nth-child(even) {
     background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #e8e8e8;
+}
+
+tr.selected {
+    background-color: #d0d0d0;
+    font-weight: bold;
 }
 
 td {
@@ -212,6 +239,11 @@ td {
 
 .delete-btn:hover {
     background-color: #ffcccc;
+}
+
+.delete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .success-message {
