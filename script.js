@@ -233,16 +233,28 @@ function displayData() {
 
 function selectItem(itemId) {
     if (selectedItemId === itemId) {
-        // Deselecting - always clear the form
+        // Deselecting
         selectedItemId = null;
         
-        // Clear and reset the form
-        document.getElementById('addForm').reset();
-        document.getElementById('ratingValue').textContent = '5';
-        document.querySelector('.form-section h2').textContent = 'Add New Entry';
-        document.querySelector('#addForm button[type="submit"]').textContent = 'Add Entry';
-        delete document.getElementById('addForm').dataset.editingId;
-        document.getElementById('customCategoryGroup').style.display = 'none';
+        // Check if form is in edit mode and clear it
+        const isEditing = document.getElementById('addForm').dataset.editingId;
+        
+        if (isEditing) {
+            // Clear ALL form fields explicitly
+            document.getElementById('category').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('creator').value = '';
+            document.getElementById('rating').value = 5;
+            document.getElementById('ratingValue').textContent = '5';
+            document.getElementById('tags').value = '';
+            document.getElementById('comments').value = '';
+            
+            // Reset form state
+            document.querySelector('.form-section h2').textContent = 'Add New Entry';
+            document.querySelector('#addForm button[type="submit"]').textContent = 'Add Entry';
+            delete document.getElementById('addForm').dataset.editingId;
+            document.getElementById('customCategoryGroup').style.display = 'none';
+        }
     } else {
         selectedItemId = itemId;
     }
