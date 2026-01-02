@@ -137,12 +137,11 @@
         .slider-field input[type="range"] {
             -webkit-appearance: none;
             flex: 1;
-            height: 1px;
+            height: 20px;
             background: transparent;
-            border-bottom: 1px solid black;
-            border-radius: 0;
             outline: none;
             cursor: pointer;
+            position: relative;
         }
 
         .slider-field input[type="range"]::-webkit-slider-runnable-track {
@@ -162,6 +161,7 @@
             background: black;
             border-radius: 50%;
             cursor: pointer;
+            margin-top: -10px;
         }
 
         .slider-field input[type="range"]::-moz-range-thumb {
