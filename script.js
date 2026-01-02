@@ -242,18 +242,15 @@ function selectItem(itemId) {
 }
 
 function updateSelectionUI() {
-    const selectionMessage = document.getElementById('selectionMessage');
     const editButton = document.getElementById('editButton');
     const deleteButton = document.getElementById('deleteButton');
     if (selectedItemId) {
         const selectedItem = filteredData.find(item => item.id === selectedItemId);
         if (selectedItem) {
-            selectionMessage.textContent = `Selected: ${selectedItem.name}`;
             editButton.disabled = false;
             deleteButton.disabled = false;
         }
     } else {
-        selectionMessage.textContent = 'Click a row to select an item';
         editButton.disabled = true;
         deleteButton.disabled = true;
     }
