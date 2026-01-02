@@ -210,7 +210,10 @@ function displayData() {
             });
         }
         html += `</div></td>`;
-        html += `<td>${item.rating % 1 === 0 ? item.rating : item.rating.toFixed(1)}/10</td>`;
+        // Convert rating to number and format correctly
+        const rating = Number(item.rating);
+        const ratingDisplay = rating % 1 === 0 ? Math.round(rating) : rating.toFixed(1);
+        html += `<td>${ratingDisplay}/10</td>`;
         html += `<td>${item.comments || ''}</td>`;
         let dateStr = '';
         if (item.createdAt) {
