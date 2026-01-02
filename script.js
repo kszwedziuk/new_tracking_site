@@ -210,7 +210,7 @@ function displayData() {
             });
         }
         html += `</div></td>`;
-        html += `<td>${item.rating}/10</td>`;
+        html += `<td>${item.rating.toFixed(1)}/10</td>`;
         html += `<td>${item.comments || ''}</td>`;
         let dateStr = '';
         if (item.createdAt) {
@@ -270,7 +270,7 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
     }
     const name = document.getElementById('name').value;
     const creator = document.getElementById('creator').value;
-    const rating = parseInt(document.getElementById('rating').value);
+    const rating = parseFloat(document.getElementById('rating').value);
     const tagsInput = document.getElementById('tags').value;
     const comments = document.getElementById('comments').value;
     const today = new Date().toISOString().split('T')[0];
@@ -311,6 +311,7 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
         formSection.insertBefore(successMsg, formSection.firstChild);
         setTimeout(() => successMsg.remove(), 3000);
         document.getElementById('addForm').reset();
+        document.getElementById('ratingValue').textContent = '5.0';
         document.getElementById('customCategoryGroup').style.display = 'none';
         await loadData();
     } catch (error) {
@@ -345,6 +346,7 @@ function editSelectedItem() {
     document.getElementById('name').value = selectedItem.name;
     document.getElementById('creator').value = selectedItem.creator || '';
     document.getElementById('rating').value = selectedItem.rating;
+    document.getElementById('ratingValue').textContent = parseFloat(selectedItem.rating).toFixed(1);
     document.getElementById('tags').value = selectedItem.tags ? selectedItem.tags.join(', ') : '';
     document.getElementById('comments').value = selectedItem.comments || '';
     const formSection = document.querySelector('.form-section');
@@ -379,6 +381,10 @@ document.getElementById('category').addEventListener('change', function() {
         customCategoryGroup.style.display = 'none';
         document.getElementById('customCategory').required = false;
     }
+});
+
+document.getElementById('rating').addEventListener('input', function() {
+    document.getElementById('ratingValue').textContent = parseFloat(this.value).toFixed(1);
 });
 
 checkPassword();
