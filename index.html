@@ -215,12 +215,21 @@
         .btn-secondary {
             padding: 5px 15px;
             background-color: white;
-            border: 1px solid black;
+            color: #1a0dab;
+            border: none;
             cursor: pointer;
+            font-family: 'Consolas', 'Courier New', monospace;
         }
 
         .btn-secondary:hover {
-            background-color: #f0f0f0;
+            color: #0d47a1;
+            text-decoration: underline;
+        }
+
+        .btn-secondary:disabled {
+            color: #999;
+            cursor: not-allowed;
+            text-decoration: none;
         }
 
         /* Filters */
