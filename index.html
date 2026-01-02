@@ -76,6 +76,7 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            overflow-x: auto;
         }
 
         .header {
@@ -267,12 +268,14 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 30px;
+            table-layout: auto;
         }
 
         th, td {
             padding: 10px;
             text-align: left;
             border: none;
+            word-wrap: break-word;
         }
 
         th {
