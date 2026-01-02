@@ -2,9 +2,10 @@ let allData = [];
 let filteredData = [];
 let sortColumn = null;
 let sortDirection = 'asc';
+let selectedItemId = null;
 
 // Password protection
-const CORRECT_PASSWORD = 'password1'; // CHANGE THIS TO YOUR PASSWORD
+const CORRECT_PASSWORD = 'password1';
 
 function checkPassword() {
     const savedPassword = sessionStorage.getItem('trackerAuth');
@@ -74,14 +75,12 @@ async function loadCustomCategories() {
             const customCats = doc.data().categories || [];
             const categorySelect = document.getElementById('category');
             
-            // Remove old custom categories (anything after "Other")
             const options = Array.from(categorySelect.options);
             const otherIndex = options.findIndex(opt => opt.value === 'Other');
             while (categorySelect.options.length > otherIndex + 1) {
                 categorySelect.remove(otherIndex + 1);
             }
             
-            // Add custom categories before "Other"
             customCats.forEach(cat => {
                 const option = document.createElement('option');
                 option.value = cat;
@@ -158,7 +157,6 @@ function filterData() {
         return true;
     });
     
-    // Re-apply current sort if exists
     if (sortColumn) {
         applySortToFilteredData();
     }
@@ -169,10 +167,8 @@ function filterData() {
 // Sort data
 function sortData(column) {
     if (sortColumn === column) {
-        // Toggle direction if clicking same column
         sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
-        // New column, default to ascending
         sortColumn = column;
         sortDirection = 'asc';
     }
@@ -183,251 +179,4 @@ function sortData(column) {
 
 function applySortToFilteredData() {
     filteredData.sort((a, b) => {
-        let aVal = a[sortColumn];
-        let bVal = b[sortColumn];
-        
-        // Handle special cases
-        if (sortColumn === 'createdAt') {
-            aVal = a.createdAt ? a.createdAt.toDate().getTime() : 0;
-            bVal = b.createdAt ? b.createdAt.toDate().getTime() : 0;
-        } else if (sortColumn === 'dateExperienced') {
-            aVal = a.dateExperienced ? new Date(a.dateExperienced).getTime() : 0;
-            bVal = b.dateExperienced ? new Date(b.dateExperienced).getTime() : 0;
-        } else if (sortColumn === 'rating') {
-            aVal = a.rating || 0;
-            bVal = b.rating || 0;
-        } else {
-            // String comparison
-            aVal = (aVal || '').toString().toLowerCase();
-            bVal = (bVal || '').toString().toLowerCase();
-        }
-        
-        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
-    });
-}
-
-// Display data in table
-function displayData() {
-    const resultsDiv = document.getElementById('results');
-    
-    if (filteredData.length === 0) {
-        resultsDiv.innerHTML = '<p>No items found. Add your first entry above!</p>';
-        return;
-    }
-    
-    let html = '<table><thead><tr>';
-    html += '<th class="sortable" data-column="category">Category</th>';
-    html += '<th class="sortable" data-column="name">Name</th>';
-    html += '<th class="sortable" data-column="creator">Creator</th>';
-    html += '<th class="sortable" data-column="dateExperienced">Date Experienced</th>';
-    html += '<th>Tags</th>';
-    html += '<th class="sortable" data-column="rating">Rating</th>';
-    html += '<th>Comments</th>';
-    html += '<th class="sortable" data-column="createdAt">Date Added</th>';
-    html += '<th>Actions</th>';
-    html += '</tr></thead><tbody>';
-    
-    filteredData.forEach(item => {
-        html += '<tr>';
-        html += `<td>${item.category}</td>`;
-        html += `<td>${item.name}</td>`;
-        html += `<td>${item.creator || ''}</td>`;
-        
-        // Format date experienced
-        let dateExpStr = '';
-        if (item.dateExperienced) {
-            dateExpStr = new Date(item.dateExperienced).toLocaleDateString();
-        }
-        html += `<td>${dateExpStr}</td>`;
-        
-        html += `<td><div class="tags">`;
-        if (item.tags && item.tags.length > 0) {
-            item.tags.forEach(tag => {
-                html += `<span class="tag">${tag}</span>`;
-            });
-        }
-        html += `</div></td>`;
-        html += `<td>${item.rating}/10</td>`;
-        html += `<td>${item.comments || ''}</td>`;
-        
-        // Format date added
-        let dateStr = '';
-        if (item.createdAt) {
-            const date = item.createdAt.toDate();
-            dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        }
-        html += `<td>${dateStr}</td>`;
-        
-        html += `<td><button class="delete-btn" onclick="deleteItem('${item.id}')">Delete</button></td>`;
-        html += '</tr>';
-    });
-    
-    html += '</tbody></table>';
-    resultsDiv.innerHTML = html;
-    
-    // Add click handlers for sorting
-    document.querySelectorAll('th.sortable').forEach(th => {
-        th.addEventListener('click', () => {
-            const column = th.dataset.column;
-            sortData(column);
-        });
-        
-        // Update sort indicators
-        if (th.dataset.column === sortColumn) {
-            th.classList.remove('sorted-asc', 'sorted-desc');
-            th.classList.add(sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
-        } else {
-            th.classList.remove('sorted-asc', 'sorted-desc');
-        }
-    });
-}
-    
-    html += '</tbody></table>';
-    resultsDiv.innerHTML = html;
-}
-
-// Add new item
-document.getElementById('addForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    let category = document.getElementById('category').value;
-    const customCategory = document.getElementById('customCategory').value.trim();
-    
-    // If "Other" is selected and custom category provided, use custom category
-    if (category === 'Other' && customCategory) {
-        category = customCategory;
-        await saveCustomCategory(category);
-    } else if (category === 'Other' && !customCategory) {
-        alert('Please enter a custom category');
-        return;
-    }
-    
-    const name = document.getElementById('name').value;
-    const creator = document.getElementById('creator').value;
-    const dateExperienced = document.getElementById('dateExperienced').value;
-    const rating = parseInt(document.getElementById('rating').value);
-    const tagsInput = document.getElementById('tags').value;
-    const comments = document.getElementById('comments').value;
-    
-    // Parse tags
-    const tags = tagsInput
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
-    
-    try {
-        await db.collection('items').add({
-            category: category,
-            name: name,
-            creator: creator,
-            dateExperienced: dateExperienced,
-            tags: tags,
-            rating: rating,
-            comments: comments,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        
-        // Show success message
-        const formSection = document.querySelector('.form-section');
-        const successMsg = document.createElement('div');
-        successMsg.className = 'success-message';
-        successMsg.textContent = 'Entry added successfully!';
-        formSection.insertBefore(successMsg, formSection.firstChild);
-        setTimeout(() => successMsg.remove(), 3000);
-        
-        // Reset form
-        document.getElementById('addForm').reset();
-        document.getElementById('customCategoryGroup').style.display = 'none';
-        
-        // Reload data
-        await loadData();
-    } catch (error) {
-        console.error('Error adding item:', error);
-        alert('Error adding item. Check console.');
-    }
-});
-
-// Delete item
-async function deleteSelectedItem() {
-    if (!selectedItemId) return;
-    
-    const selectedItem = filteredData.find(item => item.id === selectedItemId);
-    if (!selectedItem) return;
-    
-    if (!confirm(`Are you sure you want to delete "${selectedItem.name}"?`)) {
-        return;
-    }
-    
-    try {
-        await db.collection('items').doc(selectedItemId).delete();
-        selectedItemId = null;
-        updateSelectionUI();
-        await loadData();
-    } catch (error) {
-        console.error('Error deleting item:', error);
-        alert('Error deleting item. Check console.');
-    }
-}
-
-// Edit item
-function editSelectedItem() {
-    if (!selectedItemId) return;
-    
-    const selectedItem = allData.find(item => item.id === selectedItemId);
-    if (!selectedItem) return;
-    
-    // Populate form with selected item's data
-    document.getElementById('category').value = selectedItem.category;
-    document.getElementById('name').value = selectedItem.name;
-    document.getElementById('creator').value = selectedItem.creator || '';
-    document.getElementById('rating').value = selectedItem.rating;
-    document.getElementById('tags').value = selectedItem.tags ? selectedItem.tags.join(', ') : '';
-    document.getElementById('comments').value = selectedItem.comments || '';
-    
-    // Change form to edit mode
-    const formSection = document.querySelector('.form-section');
-    const submitButton = document.querySelector('#addForm button[type="submit"]');
-    
-    formSection.querySelector('h2').textContent = 'Edit Entry';
-    submitButton.textContent = 'Update Entry';
-    
-    // Store the ID we're editing
-    document.getElementById('addForm').dataset.editingId = selectedItemId;
-    
-    // Scroll to form
-    formSection.scrollIntoView({ behavior: 'smooth' });
-}
-
-// Reset filters
-function resetFilters() {
-    document.getElementById('categoryFilter').value = '';
-    document.getElementById('tagFilter').value = '';
-    document.getElementById('ratingFilter').value = '';
-    sortColumn = null;
-    sortDirection = 'asc';
-    filteredData = [...allData];
-    displayData();
-}
-
-// Event listeners
-document.getElementById('categoryFilter').addEventListener('change', filterData);
-document.getElementById('tagFilter').addEventListener('change', filterData);
-document.getElementById('ratingFilter').addEventListener('change', filterData);
-document.getElementById('resetButton').addEventListener('click', resetFilters);
-
-// Show/hide custom category input when "Other" is selected
-document.getElementById('category').addEventListener('change', function() {
-    const customCategoryGroup = document.getElementById('customCategoryGroup');
-    if (this.value === 'Other') {
-        customCategoryGroup.style.display = 'flex';
-        document.getElementById('customCategory').required = true;
-    } else {
-        customCategoryGroup.style.display = 'none';
-        document.getElementById('customCategory').required = false;
-    }
-});
-
-// Load data when page loads
-checkPassword();
+        l
