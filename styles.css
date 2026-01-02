@@ -172,40 +172,21 @@ table {
 }
 
 th, td {
-    border: 1px solid black;
     padding: 10px;
     text-align: left;
+    border: none;
 }
 
 th {
-    background-color: #f0f0f0;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-}
-
-th:hover {
-    background-color: #e0e0e0;
-}
-
-th.sortable::after {
-    content: ' ⇅';
-    opacity: 0.3;
-}
-
-th.sorted-asc::after {
-    content: ' ▲';
-    opacity: 1;
-}
-
-th.sorted-desc::after {
-    content: ' ▼';
-    opacity: 1;
+    display: none;
 }
 
 tr:nth-child(even) {
     background-color: #f9f9f9;
+}
+
+td {
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .tags {
