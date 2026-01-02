@@ -73,9 +73,9 @@ h2 {
 
 /* Form Styles */
 .form-section {
-    border: 1px solid black;
     padding: 20px;
     margin-bottom: 30px;
+    border: none;
 }
 
 .form-row {
@@ -136,9 +136,9 @@ h2 {
 
 /* Filters */
 .filters {
-    border: 1px solid black;
     padding: 20px;
     margin-bottom: 30px;
+    border: none;
 }
 
 .filter-row {
