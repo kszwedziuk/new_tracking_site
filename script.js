@@ -311,7 +311,7 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
         formSection.insertBefore(successMsg, formSection.firstChild);
         setTimeout(() => successMsg.remove(), 3000);
         document.getElementById('addForm').reset();
-        document.getElementById('ratingValue').textContent = '5.0';
+        document.getElementById('ratingValue').textContent = '5';
         document.getElementById('customCategoryGroup').style.display = 'none';
         await loadData();
     } catch (error) {
