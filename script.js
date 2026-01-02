@@ -210,7 +210,7 @@ function displayData() {
             });
         }
         html += `</div></td>`;
-        html += `<td>${item.rating.toFixed(1)}/10</td>`;
+        html += `<td>${item.rating % 1 === 0 ? item.rating : item.rating.toFixed(1)}/10</td>`;
         html += `<td>${item.comments || ''}</td>`;
         let dateStr = '';
         if (item.createdAt) {
@@ -346,7 +346,8 @@ function editSelectedItem() {
     document.getElementById('name').value = selectedItem.name;
     document.getElementById('creator').value = selectedItem.creator || '';
     document.getElementById('rating').value = selectedItem.rating;
-    document.getElementById('ratingValue').textContent = parseFloat(selectedItem.rating).toFixed(1);
+    const ratingValue = parseFloat(selectedItem.rating);
+    document.getElementById('ratingValue').textContent = ratingValue % 1 === 0 ? ratingValue : ratingValue.toFixed(1);
     document.getElementById('tags').value = selectedItem.tags ? selectedItem.tags.join(', ') : '';
     document.getElementById('comments').value = selectedItem.comments || '';
     const formSection = document.querySelector('.form-section');
@@ -384,7 +385,8 @@ document.getElementById('category').addEventListener('change', function() {
 });
 
 document.getElementById('rating').addEventListener('input', function() {
-    document.getElementById('ratingValue').textContent = parseFloat(this.value).toFixed(1);
+    const value = parseFloat(this.value);
+    document.getElementById('ratingValue').textContent = value % 1 === 0 ? value : value.toFixed(1);
 });
 
 checkPassword();
