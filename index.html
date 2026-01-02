@@ -331,6 +331,86 @@
             padding: 10px;
             margin-bottom: 15px;
         }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .form-group {
+                min-width: 100%;
+            }
+
+            .rating-slider-group {
+                min-width: 100%;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .btn-secondary, .btn-primary {
+                width: 100%;
+                margin-top: 5px;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            td, th {
+                padding: 5px;
+            }
+
+            /* Hide less important columns on mobile */
+            td:nth-child(6), th:nth-child(6) {
+                display: none; /* Hide Date Added */
+            }
+
+            .tags {
+                font-size: 0.8em;
+            }
+
+            .tag {
+                font-size: 0.75em;
+            }
+        }
+
+        /* Very small phones */
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            table {
+                font-size: 0.8em;
+            }
+
+            /* Make table scrollable horizontally */
+            #results {
+                overflow-x: auto;
+            }
+
+            /* Hide comments on very small screens */
+            td:nth-child(5), th:nth-child(5) {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
