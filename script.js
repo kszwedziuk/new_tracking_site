@@ -66,7 +66,8 @@ async function loadData() {
 
 function separateData() {
     inProgressData = allData.filter(item => item.status === 'in_progress');
-    completedData = allData.filter(item => item.status === 'completed');
+    // Items without status field default to 'completed' (old data)
+    completedData = allData.filter(item => item.status === 'completed' || !item.status);
 }
 
 async function loadCustomCategories() {
@@ -151,7 +152,8 @@ function filterData() {
     });
 
     completedData = allData.filter(item => {
-        if (item.status !== 'completed') return false;
+        // Include items without status (old data) as completed
+        if (item.status !== 'completed' && item.status) return false;
         if (categoryFilter && item.category !== categoryFilter) return false;
         if (tagFilter && (!item.tags || !item.tags.includes(tagFilter))) return false;
         if (ratingFilter && item.rating < parseInt(ratingFilter)) return false;
