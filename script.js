@@ -186,7 +186,6 @@ function displayInProgressTable() {
     let html = '<table><thead><tr>';
     html += '<th>Name</th>';
     html += '<th>Creator</th>';
-    html += '<th>Category</th>';
     html += '<th>Progress</th>';
     html += '<th>Tags</th>';
     html += '<th>Actions</th>';
@@ -197,12 +196,11 @@ function displayInProgressTable() {
         html += `<tr class="${isSelected ? 'selected' : ''}" data-id="${item.id}">`;
         html += `<td>${item.name}</td>`;
         html += `<td>${item.creator || ''}</td>`;
-        html += `<td>${item.category}</td>`;
         
         const current = item.currentUnits || 0;
         const total = item.totalUnits || 1;
         const percentage = Math.round((current / total) * 100);
-        html += `<td>
+        html += `<td style="min-width: 200px;">
             <div class="progress-bar">
                 <div class="progress-fill" style="width: ${percentage}%"></div>
                 <div class="progress-text">${current}/${total} (${percentage}%)</div>
