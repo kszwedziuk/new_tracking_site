@@ -54,6 +54,10 @@ async function loadData() {
                 ...doc.data()
             });
         });
+        
+        console.log('Loaded data:', allData.length, 'items');
+        console.log('Sample item:', allData[0]);
+        
         await loadCustomCategories();
         populateFilters();
         separateData();
@@ -66,8 +70,11 @@ async function loadData() {
 
 function separateData() {
     inProgressData = allData.filter(item => item.status === 'in_progress');
-    // Items without status field default to 'completed' (old data)
-    completedData = allData.filter(item => item.status === 'completed' || !item.status);
+    // Items without status field OR with status 'completed' go to completed
+    completedData = allData.filter(item => !item.status || item.status === 'completed');
+    
+    console.log('In Progress:', inProgressData.length);
+    console.log('Completed:', completedData.length);
 }
 
 async function loadCustomCategories() {
@@ -152,11 +159,11 @@ function filterData() {
     });
 
     completedData = allData.filter(item => {
-        // Include items without status (old data) as completed
-        if (item.status !== 'completed' && item.status) return false;
+        // Include items without status (old data) OR with status completed
+        if (item.status && item.status !== 'completed') return false;
         if (categoryFilter && item.category !== categoryFilter) return false;
         if (tagFilter && (!item.tags || !item.tags.includes(tagFilter))) return false;
-        if (ratingFilter && item.rating < parseInt(ratingFilter)) return false;
+        if (ratingFilter && item.rating && item.rating < parseInt(ratingFilter)) return false;
         return true;
     });
     
@@ -192,7 +199,6 @@ function displayInProgressTable() {
         html += `<td>${item.creator || ''}</td>`;
         html += `<td>${item.category}</td>`;
         
-        // Progress bar
         const current = item.currentUnits || 0;
         const total = item.totalUnits || 1;
         const percentage = Math.round((current / total) * 100);
@@ -229,6 +235,8 @@ function displayInProgressTable() {
 function displayCompletedTable() {
     const resultsDiv = document.getElementById('completedResults');
     
+    console.log('Displaying completed table with', completedData.length, 'items');
+    
     if (completedData.length === 0) {
         resultsDiv.innerHTML = '<p>No completed items yet!</p>';
         return;
@@ -255,9 +263,16 @@ function displayCompletedTable() {
             });
         }
         html += `</div></td>`;
-        const rating = Number(item.rating);
-        const ratingDisplay = Number.isInteger(rating) ? rating : rating.toFixed(1);
-        html += `<td>${ratingDisplay}/10</td>`;
+        
+        // Handle items without ratings (old data)
+        if (item.rating) {
+            const rating = Number(item.rating);
+            const ratingDisplay = Number.isInteger(rating) ? rating : rating.toFixed(1);
+            html += `<td>${ratingDisplay}/10</td>`;
+        } else {
+            html += `<td>-</td>`;
+        }
+        
         html += `<td>${item.comments || ''}</td>`;
         let dateStr = '';
         if (item.createdAt) {
@@ -466,7 +481,8 @@ function editSelectedItem() {
     const selectedItem = allData.find(item => item.id === selectedItemId);
     if (!selectedItem) return;
     
-    document.getElementById('status').value = selectedItem.status;
+    // Default to completed if no status (old data)
+    document.getElementById('status').value = selectedItem.status || 'completed';
     document.getElementById('category').value = selectedItem.category;
     document.getElementById('name').value = selectedItem.name;
     document.getElementById('creator').value = selectedItem.creator || '';
@@ -476,8 +492,8 @@ function editSelectedItem() {
         document.getElementById('totalUnits').value = selectedItem.totalUnits || '';
         document.getElementById('currentUnits').value = selectedItem.currentUnits || '';
     } else {
-        document.getElementById('rating').value = selectedItem.rating;
-        const ratingValue = Number(selectedItem.rating);
+        document.getElementById('rating').value = selectedItem.rating || 5;
+        const ratingValue = Number(selectedItem.rating || 5);
         const ratingDisplay = Number.isInteger(ratingValue) ? ratingValue : ratingValue.toFixed(1);
         document.getElementById('ratingValue').textContent = ratingDisplay;
         document.getElementById('comments').value = selectedItem.comments || '';
