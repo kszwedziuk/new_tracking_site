@@ -3,15 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker</title>
+    <title>My Tracker</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        * {
             font-family: 'Consolas', 'Courier New', monospace;
             font-weight: normal;
         }
@@ -27,14 +24,6 @@
             font-family: 'Consolas', 'Courier New', monospace;
         }
 
-        body {
-            font-family: 'Consolas', 'Courier New', monospace;
-            background-color: white;
-            color: black;
-            padding: 20px;
-        }
-
-        /* Login Screen */
         .login-screen {
             display: flex;
             justify-content: center;
@@ -76,7 +65,6 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            overflow-x: auto;
         }
 
         .header {
@@ -95,7 +83,6 @@
             font-size: 1.2em;
         }
 
-        /* Form Styles */
         .form-section {
             padding: 20px;
             margin-bottom: 30px;
@@ -115,7 +102,7 @@
             flex-direction: column;
             gap: 5px;
             flex: 1;
-            min-width: 50px;
+            min-width: 150px;
         }
 
         .form-group label {
@@ -131,7 +118,6 @@
             font-family: 'Consolas', 'Courier New', monospace;
         }
 
-        /* Custom Rating Slider */
         .rating-slider-group {
             flex: 1;
             min-width: 400px;
@@ -177,8 +163,8 @@
             -webkit-appearance: none;
             width: 20px;
             height: 20px;
-            background: #d0d0d0;
-            border-radius: 4px;
+            background: #e0e0e0;
+            border-radius: 50%;
             cursor: pointer;
             margin-top: -10px;
         }
@@ -186,8 +172,8 @@
         .slider-field input[type="range"]::-moz-range-thumb {
             width: 20px;
             height: 20px;
-            background: #d0d0d0;
-            border-radius: 4px;
+            background: #e0e0e0;
+            border-radius: 50%;
             border: none;
             cursor: pointer;
         }
@@ -197,7 +183,7 @@
             color: black;
         }
 
-.btn-primary {
+        .btn-primary {
             padding: 10px 20px;
             background-color: white;
             color: #1a0dab;
@@ -232,7 +218,6 @@
             text-decoration: none;
         }
 
-        /* Filters */
         .filters {
             padding: 20px;
             margin-bottom: 30px;
@@ -274,19 +259,22 @@
             padding: 5px 0;
         }
 
-        /* Table */
+        .section-title {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            margin-top: 30px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 30px;
-            table-layout: auto;
         }
 
         th, td {
             padding: 10px;
             text-align: left;
             border: none;
-            word-wrap: break-word;
         }
 
         th {
@@ -299,13 +287,13 @@
         }
 
         tr:hover {
-            background-color: #e8e8e8;
+            background-color: white;
         }
 
         tr.selected {
-            background-color: #d0d0d0;
+            background-color: #e0e0e0;
             font-weight: normal;
-            border-left: 4px solid black;
+            outline: 2px solid black;
         }
 
         td {
@@ -325,6 +313,44 @@
             font-size: 0.9em;
         }
 
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.85em;
+            color: black;
+        }
+
+        .complete-btn {
+            padding: 3px 8px;
+            background-color: white;
+            color: #1a0dab;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .complete-btn:hover {
+            color: #0d47a1;
+            text-decoration: underline;
+        }
+
         .success-message {
             background-color: #d4edda;
             border: 1px solid #28a745;
@@ -332,89 +358,16 @@
             margin-bottom: 15px;
         }
 
-        /* Mobile Optimizations */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .header h1 {
-                font-size: 1.5em;
-            }
-
-            .form-row {
-                flex-direction: column;
-            }
-
-            .form-group {
-                min-width: 100%;
-            }
-
-            .rating-slider-group {
-                min-width: 100%;
-            }
-
-            .filter-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .filter-group {
-                width: 100%;
-            }
-
-            .btn-secondary, .btn-primary {
-                width: 100%;
-                margin-top: 5px;
-            }
-
-            table {
-                font-size: 0.9em;
-            }
-
-            td, th {
-                padding: 5px;
-            }
-
-            /* Hide less important columns on mobile */
-            td:nth-child(6), th:nth-child(6) {
-                display: none; /* Hide Date Added */
-            }
-
-            .tags {
-                font-size: 0.8em;
-            }
-
-            .tag {
-                font-size: 0.75em;
-            }
+        .progress-fields {
+            display: none;
         }
 
-        /* Very small phones */
-        @media (max-width: 480px) {
-            .header {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            table {
-                font-size: 0.8em;
-            }
-
-            /* Make table scrollable horizontally */
-            #results {
-                overflow-x: auto;
-            }
-
-            /* Hide comments on very small screens */
-            td:nth-child(5), th:nth-child(5) {
-                display: none;
-            }
+        .rating-fields {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <!-- Password Protection Screen -->
     <div id="loginScreen" class="login-screen">
         <div class="login-box">
             <h1>My Tracker</h1>
@@ -427,7 +380,6 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div id="mainContent" style="display: none;">
         <div class="container">
             <div class="header">
@@ -435,13 +387,20 @@
                 <button id="logoutButton" class="btn-secondary">Logout</button>
             </div>
         
-            <!-- Add New Entry Form -->
             <div class="form-section">
                 <h2>Add New Entry</h2>
                 <form id="addForm">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="category">Category</label>
+                            <label for="status">Status:</label>
+                            <select id="status" required>
+                                <option value="in_progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">Category:</label>
                             <select id="category" required>
                                 <option value="">Select...</option>
                                 <option value="Book">Book</option>
@@ -458,32 +417,44 @@
                         </div>
                         
                         <div class="form-group" id="customCategoryGroup" style="display: none;">
-                            <label for="customCategory">Custom Category</label>
+                            <label for="customCategory">Custom Category:</label>
                             <input type="text" id="customCategory" placeholder="Enter custom category">
                         </div>
                         
                         <div class="form-group">
-                            <label for="name">Name</label>
+                            <label for="name">Name:</label>
                             <input type="text" id="name" required>
                         </div>
                         
                         <div class="form-group">
-                            <label for="creator">Creator</label>
+                            <label for="creator">Creator:</label>
                             <input type="text" id="creator" placeholder="e.g. Director, Author, Chef">
                         </div>
                         
                         <div class="form-group">
-                            <label for="tags">Tags</label>
+                            <label for="tags">Tags (comma-separated):</label>
                             <input type="text" id="tags" placeholder="e.g. fiction, thriller, suspense">
                         </div>
                     </div>
+
+                    <div class="form-row progress-fields" id="progressFields">
+                        <div class="form-group">
+                            <label for="totalUnits">Total (pages/episodes/tracks):</label>
+                            <input type="number" id="totalUnits" min="1" placeholder="e.g. 350">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="currentUnits">Current (pages/episodes/tracks):</label>
+                            <input type="number" id="currentUnits" min="0" placeholder="e.g. 120">
+                        </div>
+                    </div>
                     
-                    <div class="form-row">
+                    <div class="form-row rating-fields" id="ratingFields">
                         <div class="form-group rating-slider-group">
-                            <label for="rating">Rating <span id="ratingValue">5</span>/10</label>
+                            <label for="rating">Rating: <span id="ratingValue">5</span>/10</label>
                             <div class="slider-field">
                                 <div class="slider-value-left">0</div>
-                                <input type="range" id="rating" min="0" max="10" step="0.5" value="5" required>
+                                <input type="range" id="rating" min="0" max="10" step="0.5" value="5">
                                 <div class="slider-value-right">10</div>
                             </div>
                         </div>
@@ -493,9 +464,9 @@
                         </div>
                     </div>
                     
-                    <div class="form-row">
+                    <div class="form-row rating-fields">
                         <div class="form-group">
-                            <label for="comments">Comments</label>
+                            <label for="comments">Comments:</label>
                             <textarea id="comments" rows="3"></textarea>
                         </div>
                     </div>
@@ -504,7 +475,6 @@
                 </form>
             </div>
             
-<!-- Filters -->
             <div class="filters">
                 <h2>Filters</h2>
                 <div class="filter-row">
@@ -544,19 +514,22 @@
                     <button id="deleteButton" class="btn-secondary" disabled>Delete Selected</button>
                 </div>
             </div>
-            
-            <!-- Results -->
-            <div id="results">
+
+            <h2 class="section-title">In Progress</h2>
+            <div id="inProgressResults">
+                <p>Loading...</p>
+            </div>
+
+            <h2 class="section-title">Completed</h2>
+            <div id="completedResults">
                 <p>Loading...</p>
             </div>
         </div>
     </div>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
-    <!-- Your configuration and app script -->
     <script src="firebase-config.js"></script>
     <script src="script.js"></script>
 </body>
