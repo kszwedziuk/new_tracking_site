@@ -502,18 +502,18 @@ function resetFilters() {
 
 function toggleStatusFields() {
     const status = document.getElementById('status').value;
-    const progressFields = document.querySelectorAll('.progress-fields');
-    const ratingFields = document.querySelectorAll('.rating-fields');
+    const progressFields = document.getElementById('progressFields');
+    const ratingFieldsAll = document.querySelectorAll('.rating-fields');
     
     if (status === 'in_progress') {
-        progressFields.forEach(f => f.style.display = 'flex');
-        ratingFields.forEach(f => f.style.display = 'none');
+        progressFields.style.display = 'flex';
+        ratingFieldsAll.forEach(f => f.style.display = 'none');
         document.getElementById('totalUnits').required = true;
         document.getElementById('currentUnits').required = true;
         document.getElementById('rating').required = false;
     } else {
-        progressFields.forEach(f => f.style.display = 'none');
-        ratingFields.forEach(f => f.style.display = 'flex');
+        progressFields.style.display = 'none';
+        ratingFieldsAll.forEach(f => f.style.display = 'flex');
         document.getElementById('totalUnits').required = false;
         document.getElementById('currentUnits').required = false;
         document.getElementById('rating').required = true;
