@@ -326,9 +326,8 @@ async function markAsCompleted(itemId) {
     const item = allData.find(i => i.id === itemId);
     if (!item) return;
     
-    // Prompt for rating
     const ratingInput = prompt(`Rate "${item.name}" (0-10):`);
-    if (ratingInput === null) return; // Cancelled
+    if (ratingInput === null) return;
     
     const rating = parseFloat(ratingInput);
     if (isNaN(rating) || rating < 0 || rating > 10) {
@@ -391,10 +390,159 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
         itemData.totalUnits = totalUnits;
         itemData.currentUnits = currentUnits;
         
-        // Auto-complete if 100%
         if (totalUnits > 0 && currentUnits >= totalUnits) {
             const autoComplete = confirm('Progress is 100%. Mark as completed?');
             if (autoComplete) {
                 const rating = parseFloat(document.getElementById('rating').value);
                 const comments = document.getElementById('comments').value;
                 itemData.status = 'completed';
+                itemData.rating = rating;
+                itemData.comments = comments;
+                itemData.completedAt = firebase.firestore.FieldValue.serverTimestamp();
+            }
+        }
+    } else {
+        const rating = parseFloat(document.getElementById('rating').value);
+        const comments = document.getElementById('comments').value;
+        itemData.rating = rating;
+        itemData.comments = comments;
+    }
+    
+    try {
+        if (editingId) {
+            await db.collection('items').doc(editingId).update(itemData);
+            document.querySelector('.form-section h2').textContent = 'Add New Entry';
+            document.querySelector('#addForm button[type="submit"]').textContent = 'Add Entry';
+            delete document.getElementById('addForm').dataset.editingId;
+            selectedItemId = null;
+            updateSelectionUI();
+        } else {
+            itemData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection('items').add(itemData);
+        }
+        
+        const formSection = document.querySelector('.form-section');
+        const successMsg = document.createElement('div');
+        successMsg.className = 'success-message';
+        successMsg.textContent = editingId ? 'Entry updated successfully!' : 'Entry added successfully!';
+        formSection.insertBefore(successMsg, formSection.firstChild);
+        setTimeout(() => successMsg.remove(), 3000);
+        
+        document.getElementById('addForm').reset();
+        document.getElementById('status').value = 'in_progress';
+        document.getElementById('ratingValue').textContent = '5';
+        document.getElementById('customCategoryGroup').style.display = 'none';
+        toggleStatusFields();
+        
+        await loadData();
+    } catch (error) {
+        console.error('Error saving item:', error);
+        alert('Error saving item. Check console.');
+    }
+});
+
+async function deleteSelectedItem() {
+    if (!selectedItemId) return;
+    const selectedItem = allData.find(item => item.id === selectedItemId);
+    if (!selectedItem) return;
+    if (!confirm(`Are you sure you want to delete "${selectedItem.name}"?`)) {
+        return;
+    }
+    try {
+        await db.collection('items').doc(selectedItemId).delete();
+        selectedItemId = null;
+        updateSelectionUI();
+        await loadData();
+    } catch (error) {
+        console.error('Error deleting item:', error);
+        alert('Error deleting item. Check console.');
+    }
+}
+
+function editSelectedItem() {
+    if (!selectedItemId) return;
+    const selectedItem = allData.find(item => item.id === selectedItemId);
+    if (!selectedItem) return;
+    
+    document.getElementById('status').value = selectedItem.status;
+    document.getElementById('category').value = selectedItem.category;
+    document.getElementById('name').value = selectedItem.name;
+    document.getElementById('creator').value = selectedItem.creator || '';
+    document.getElementById('tags').value = selectedItem.tags ? selectedItem.tags.join(', ') : '';
+    
+    if (selectedItem.status === 'in_progress') {
+        document.getElementById('totalUnits').value = selectedItem.totalUnits || '';
+        document.getElementById('currentUnits').value = selectedItem.currentUnits || '';
+    } else {
+        document.getElementById('rating').value = selectedItem.rating;
+        const ratingValue = Number(selectedItem.rating);
+        const ratingDisplay = Number.isInteger(ratingValue) ? ratingValue : ratingValue.toFixed(1);
+        document.getElementById('ratingValue').textContent = ratingDisplay;
+        document.getElementById('comments').value = selectedItem.comments || '';
+    }
+    
+    toggleStatusFields();
+    
+    const formSection = document.querySelector('.form-section');
+    formSection.querySelector('h2').textContent = 'Edit Entry';
+    document.querySelector('#addForm button[type="submit"]').textContent = 'Update Entry';
+    document.getElementById('addForm').dataset.editingId = selectedItemId;
+    formSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetFilters() {
+    document.getElementById('categoryFilter').value = '';
+    document.getElementById('tagFilter').value = '';
+    document.getElementById('ratingFilter').value = '';
+    separateData();
+    displayBothTables();
+}
+
+function toggleStatusFields() {
+    const status = document.getElementById('status').value;
+    const progressFields = document.querySelectorAll('.progress-fields');
+    const ratingFields = document.querySelectorAll('.rating-fields');
+    
+    if (status === 'in_progress') {
+        progressFields.forEach(f => f.style.display = 'flex');
+        ratingFields.forEach(f => f.style.display = 'none');
+        document.getElementById('totalUnits').required = true;
+        document.getElementById('currentUnits').required = true;
+        document.getElementById('rating').required = false;
+    } else {
+        progressFields.forEach(f => f.style.display = 'none');
+        ratingFields.forEach(f => f.style.display = 'flex');
+        document.getElementById('totalUnits').required = false;
+        document.getElementById('currentUnits').required = false;
+        document.getElementById('rating').required = true;
+    }
+}
+
+document.getElementById('categoryFilter').addEventListener('change', filterData);
+document.getElementById('tagFilter').addEventListener('change', filterData);
+document.getElementById('ratingFilter').addEventListener('change', filterData);
+document.getElementById('resetButton').addEventListener('click', resetFilters);
+document.getElementById('editButton').addEventListener('click', editSelectedItem);
+document.getElementById('deleteButton').addEventListener('click', deleteSelectedItem);
+
+document.getElementById('status').addEventListener('change', toggleStatusFields);
+
+document.getElementById('category').addEventListener('change', function() {
+    const customCategoryGroup = document.getElementById('customCategoryGroup');
+    if (this.value === 'Other') {
+        customCategoryGroup.style.display = 'flex';
+        document.getElementById('customCategory').required = true;
+    } else {
+        customCategoryGroup.style.display = 'none';
+        document.getElementById('customCategory').required = false;
+    }
+});
+
+document.getElementById('rating').addEventListener('input', function() {
+    const value = Number(this.value);
+    const display = Number.isInteger(value) ? value : value.toFixed(1);
+    document.getElementById('ratingValue').textContent = display;
+});
+
+toggleStatusFields();
+checkPassword();
