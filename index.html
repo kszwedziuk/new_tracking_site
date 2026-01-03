@@ -312,14 +312,20 @@
             font-size: 0.75em;
         }
 
+      /* Make progress bar column wider */
+        #inProgressResults td:nth-child(3) {
+            min-width: 250px;
+            width: 250px;
+        }
+        
         .progress-bar {
             width: 100%;
+            min-width: 200px;
             height: 20px;
-            background-color: #f0f0f0;
-            border: 1px solid #ddd;
+            background-color: white;
+            border: 1px solid black;
             position: relative;
             overflow: hidden;
-            border-radius: 3px;
         }
 
         .progress-fill {
@@ -369,6 +375,10 @@
 
         .rating-fields {
             display: none;
+        }
+
+        #totalUnits, #currentUnits {
+            max-width: 150px;
         }
     </style>
 </head>
