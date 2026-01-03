@@ -1,7 +1,6 @@
 let allData = [];
-let filteredData = [];
-let sortColumn = null;
-let sortDirection = 'asc';
+let inProgressData = [];
+let completedData = [];
 let selectedItemId = null;
 
 const CORRECT_PASSWORD = 'password1';
@@ -57,12 +56,17 @@ async function loadData() {
         });
         await loadCustomCategories();
         populateFilters();
-        filteredData = [...allData];
-        displayData();
+        separateData();
+        displayBothTables();
     } catch (error) {
         console.error('Error loading data:', error);
-        document.getElementById('results').innerHTML = '<p>Error loading data. Check console.</p>';
+        document.getElementById('completedResults').innerHTML = '<p>Error loading data. Check console.</p>';
     }
+}
+
+function separateData() {
+    inProgressData = allData.filter(item => item.status === 'in_progress');
+    completedData = allData.filter(item => item.status === 'completed');
 }
 
 async function loadCustomCategories() {
@@ -138,58 +142,96 @@ function filterData() {
     const categoryFilter = document.getElementById('categoryFilter').value;
     const tagFilter = document.getElementById('tagFilter').value;
     const ratingFilter = document.getElementById('ratingFilter').value;
-    filteredData = allData.filter(item => {
+    
+    inProgressData = allData.filter(item => {
+        if (item.status !== 'in_progress') return false;
+        if (categoryFilter && item.category !== categoryFilter) return false;
+        if (tagFilter && (!item.tags || !item.tags.includes(tagFilter))) return false;
+        return true;
+    });
+
+    completedData = allData.filter(item => {
+        if (item.status !== 'completed') return false;
         if (categoryFilter && item.category !== categoryFilter) return false;
         if (tagFilter && (!item.tags || !item.tags.includes(tagFilter))) return false;
         if (ratingFilter && item.rating < parseInt(ratingFilter)) return false;
         return true;
     });
-    if (sortColumn) {
-        applySortToFilteredData();
-    }
-    displayData();
+    
+    displayBothTables();
 }
 
-function sortData(column) {
-    if (sortColumn === column) {
-        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortColumn = column;
-        sortDirection = 'asc';
-    }
-    applySortToFilteredData();
-    displayData();
+function displayBothTables() {
+    displayInProgressTable();
+    displayCompletedTable();
 }
 
-function applySortToFilteredData() {
-    filteredData.sort((a, b) => {
-        let aVal = a[sortColumn];
-        let bVal = b[sortColumn];
-        if (sortColumn === 'createdAt') {
-            aVal = a.createdAt ? a.createdAt.toDate().getTime() : 0;
-            bVal = b.createdAt ? b.createdAt.toDate().getTime() : 0;
-        } else if (sortColumn === 'dateExperienced') {
-            aVal = a.dateExperienced ? new Date(a.dateExperienced).getTime() : 0;
-            bVal = b.dateExperienced ? new Date(b.dateExperienced).getTime() : 0;
-        } else if (sortColumn === 'rating') {
-            aVal = a.rating || 0;
-            bVal = b.rating || 0;
-        } else {
-            aVal = (aVal || '').toString().toLowerCase();
-            bVal = (bVal || '').toString().toLowerCase();
+function displayInProgressTable() {
+    const resultsDiv = document.getElementById('inProgressResults');
+    
+    if (inProgressData.length === 0) {
+        resultsDiv.innerHTML = '<p>No items in progress.</p>';
+        return;
+    }
+    
+    let html = '<table><thead><tr>';
+    html += '<th>Name</th>';
+    html += '<th>Creator</th>';
+    html += '<th>Category</th>';
+    html += '<th>Progress</th>';
+    html += '<th>Tags</th>';
+    html += '<th>Actions</th>';
+    html += '</tr></thead><tbody>';
+    
+    inProgressData.forEach(item => {
+        const isSelected = item.id === selectedItemId;
+        html += `<tr class="${isSelected ? 'selected' : ''}" data-id="${item.id}">`;
+        html += `<td>${item.name}</td>`;
+        html += `<td>${item.creator || ''}</td>`;
+        html += `<td>${item.category}</td>`;
+        
+        // Progress bar
+        const current = item.currentUnits || 0;
+        const total = item.totalUnits || 1;
+        const percentage = Math.round((current / total) * 100);
+        html += `<td>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: ${percentage}%"></div>
+                <div class="progress-text">${current}/${total} (${percentage}%)</div>
+            </div>
+        </td>`;
+        
+        html += `<td><div class="tags">`;
+        if (item.tags && item.tags.length > 0) {
+            item.tags.forEach(tag => {
+                html += `<span class="tag">${tag}</span>`;
+            });
         }
-        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
+        html += `</div></td>`;
+        html += `<td><button class="complete-btn" onclick="markAsCompleted('${item.id}')">Mark Complete</button></td>`;
+        html += '</tr>';
+    });
+    
+    html += '</tbody></table>';
+    resultsDiv.innerHTML = html;
+    
+    document.querySelectorAll('#inProgressResults tbody tr').forEach(row => {
+        row.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('complete-btn')) {
+                selectItem(row.dataset.id);
+            }
+        });
     });
 }
 
-function displayData() {
-    const resultsDiv = document.getElementById('results');
-    if (filteredData.length === 0) {
-        resultsDiv.innerHTML = '<p>No items found. Add your first entry above!</p>';
+function displayCompletedTable() {
+    const resultsDiv = document.getElementById('completedResults');
+    
+    if (completedData.length === 0) {
+        resultsDiv.innerHTML = '<p>No completed items yet!</p>';
         return;
     }
+    
     let html = '<table><thead><tr>';
     html += '<th>Name</th>';
     html += '<th>Creator</th>';
@@ -198,7 +240,8 @@ function displayData() {
     html += '<th>Comments</th>';
     html += '<th>Date Added</th>';
     html += '</tr></thead><tbody>';
-    filteredData.forEach(item => {
+    
+    completedData.forEach(item => {
         const isSelected = item.id === selectedItemId;
         html += `<tr class="${isSelected ? 'selected' : ''}" data-id="${item.id}">`;
         html += `<td>${item.name}</td>`;
@@ -222,9 +265,11 @@ function displayData() {
         html += `<td>${dateStr}</td>`;
         html += '</tr>';
     });
+    
     html += '</tbody></table>';
     resultsDiv.innerHTML = html;
-    document.querySelectorAll('tbody tr').forEach(row => {
+    
+    document.querySelectorAll('#completedResults tbody tr').forEach(row => {
         row.addEventListener('click', () => {
             selectItem(row.dataset.id);
         });
@@ -233,40 +278,40 @@ function displayData() {
 
 function selectItem(itemId) {
     if (selectedItemId === itemId) {
-        // Deselecting
         selectedItemId = null;
         
-        // Check if form is in edit mode and clear it
         const isEditing = document.getElementById('addForm').dataset.editingId;
         
         if (isEditing) {
-            // Clear ALL form fields explicitly
+            document.getElementById('status').value = 'in_progress';
             document.getElementById('category').value = '';
             document.getElementById('name').value = '';
             document.getElementById('creator').value = '';
+            document.getElementById('totalUnits').value = '';
+            document.getElementById('currentUnits').value = '';
             document.getElementById('rating').value = 5;
             document.getElementById('ratingValue').textContent = '5';
             document.getElementById('tags').value = '';
             document.getElementById('comments').value = '';
             
-            // Reset form state
             document.querySelector('.form-section h2').textContent = 'Add New Entry';
             document.querySelector('#addForm button[type="submit"]').textContent = 'Add Entry';
             delete document.getElementById('addForm').dataset.editingId;
             document.getElementById('customCategoryGroup').style.display = 'none';
+            toggleStatusFields();
         }
     } else {
         selectedItemId = itemId;
     }
     updateSelectionUI();
-    displayData();
+    displayBothTables();
 }
 
 function updateSelectionUI() {
     const editButton = document.getElementById('editButton');
     const deleteButton = document.getElementById('deleteButton');
     if (selectedItemId) {
-        const selectedItem = filteredData.find(item => item.id === selectedItemId);
+        const selectedItem = allData.find(item => item.id === selectedItemId);
         if (selectedItem) {
             editButton.disabled = false;
             deleteButton.disabled = false;
@@ -277,10 +322,44 @@ function updateSelectionUI() {
     }
 }
 
+async function markAsCompleted(itemId) {
+    const item = allData.find(i => i.id === itemId);
+    if (!item) return;
+    
+    // Prompt for rating
+    const ratingInput = prompt(`Rate "${item.name}" (0-10):`);
+    if (ratingInput === null) return; // Cancelled
+    
+    const rating = parseFloat(ratingInput);
+    if (isNaN(rating) || rating < 0 || rating > 10) {
+        alert('Please enter a valid rating between 0 and 10');
+        return;
+    }
+    
+    const comments = prompt('Add comments (optional):') || '';
+    
+    try {
+        await db.collection('items').doc(itemId).update({
+            status: 'completed',
+            rating: rating,
+            comments: comments,
+            completedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        await loadData();
+    } catch (error) {
+        console.error('Error marking as completed:', error);
+        alert('Error updating item. Check console.');
+    }
+}
+
 document.getElementById('addForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+    
+    const status = document.getElementById('status').value;
     let category = document.getElementById('category').value;
     const customCategory = document.getElementById('customCategory').value.trim();
+    
     if (category === 'Other' && customCategory) {
         category = customCategory;
         await saveCustomCategory(category);
@@ -288,127 +367,34 @@ document.getElementById('addForm').addEventListener('submit', async (e) => {
         alert('Please enter a custom category');
         return;
     }
+    
     const name = document.getElementById('name').value;
     const creator = document.getElementById('creator').value;
-    const rating = parseFloat(document.getElementById('rating').value);
     const tagsInput = document.getElementById('tags').value;
-    const comments = document.getElementById('comments').value;
     const today = new Date().toISOString().split('T')[0];
     const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    
     const editingId = document.getElementById('addForm').dataset.editingId;
-    try {
-        if (editingId) {
-            await db.collection('items').doc(editingId).update({
-                category: category,
-                name: name,
-                creator: creator,
-                dateExperienced: today,
-                tags: tags,
-                rating: rating,
-                comments: comments
-            });
-            document.querySelector('.form-section h2').textContent = 'Add New Entry';
-            document.querySelector('#addForm button[type="submit"]').textContent = 'Add Entry';
-            delete document.getElementById('addForm').dataset.editingId;
-            selectedItemId = null;
-            updateSelectionUI();
-        } else {
-            await db.collection('items').add({
-                category: category,
-                name: name,
-                creator: creator,
-                dateExperienced: today,
-                tags: tags,
-                rating: rating,
-                comments: comments,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-        const formSection = document.querySelector('.form-section');
-        const successMsg = document.createElement('div');
-        successMsg.className = 'success-message';
-        successMsg.textContent = editingId ? 'Entry updated successfully!' : 'Entry added successfully!';
-        formSection.insertBefore(successMsg, formSection.firstChild);
-        setTimeout(() => successMsg.remove(), 3000);
-        document.getElementById('addForm').reset();
-        document.getElementById('ratingValue').textContent = '5';
-        document.getElementById('customCategoryGroup').style.display = 'none';
-        await loadData();
-    } catch (error) {
-        console.error('Error saving item:', error);
-        alert('Error saving item. Check console.');
-    }
-});
-
-async function deleteSelectedItem() {
-    if (!selectedItemId) return;
-    const selectedItem = filteredData.find(item => item.id === selectedItemId);
-    if (!selectedItem) return;
-    if (!confirm(`Are you sure you want to delete "${selectedItem.name}"?`)) {
-        return;
-    }
-    try {
-        await db.collection('items').doc(selectedItemId).delete();
-        selectedItemId = null;
-        updateSelectionUI();
-        await loadData();
-    } catch (error) {
-        console.error('Error deleting item:', error);
-        alert('Error deleting item. Check console.');
-    }
-}
-
-function editSelectedItem() {
-    if (!selectedItemId) return;
-    const selectedItem = allData.find(item => item.id === selectedItemId);
-    if (!selectedItem) return;
-    document.getElementById('category').value = selectedItem.category;
-    document.getElementById('name').value = selectedItem.name;
-    document.getElementById('creator').value = selectedItem.creator || '';
-    document.getElementById('rating').value = selectedItem.rating;
-    const ratingValue = Number(selectedItem.rating);
-    const ratingDisplay = Number.isInteger(ratingValue) ? ratingValue : ratingValue.toFixed(1);
-    document.getElementById('ratingValue').textContent = ratingDisplay;
-    document.getElementById('tags').value = selectedItem.tags ? selectedItem.tags.join(', ') : '';
-    document.getElementById('comments').value = selectedItem.comments || '';
-    const formSection = document.querySelector('.form-section');
-    formSection.querySelector('h2').textContent = 'Edit Entry';
-    document.querySelector('#addForm button[type="submit"]').textContent = 'Update Entry';
-    document.getElementById('addForm').dataset.editingId = selectedItemId;
-    formSection.scrollIntoView({ behavior: 'smooth' });
-}
-
-function resetFilters() {
-    document.getElementById('categoryFilter').value = '';
-    document.getElementById('tagFilter').value = '';
-    document.getElementById('ratingFilter').value = '';
-    sortColumn = null;
-    sortDirection = 'asc';
-    filteredData = [...allData];
-    displayData();
-}
-
-document.getElementById('categoryFilter').addEventListener('change', filterData);
-document.getElementById('tagFilter').addEventListener('change', filterData);
-document.getElementById('ratingFilter').addEventListener('change', filterData);
-document.getElementById('resetButton').addEventListener('click', resetFilters);
-document.getElementById('editButton').addEventListener('click', editSelectedItem);
-document.getElementById('deleteButton').addEventListener('click', deleteSelectedItem);
-document.getElementById('category').addEventListener('change', function() {
-    const customCategoryGroup = document.getElementById('customCategoryGroup');
-    if (this.value === 'Other') {
-        customCategoryGroup.style.display = 'flex';
-        document.getElementById('customCategory').required = true;
-    } else {
-        customCategoryGroup.style.display = 'none';
-        document.getElementById('customCategory').required = false;
-    }
-});
-
-document.getElementById('rating').addEventListener('input', function() {
-    const value = Number(this.value);
-    const display = Number.isInteger(value) ? value : value.toFixed(1);
-    document.getElementById('ratingValue').textContent = display;
-});
-
-checkPassword();
+    
+    const itemData = {
+        status: status,
+        category: category,
+        name: name,
+        creator: creator,
+        dateExperienced: today,
+        tags: tags
+    };
+    
+    if (status === 'in_progress') {
+        const totalUnits = parseInt(document.getElementById('totalUnits').value) || 0;
+        const currentUnits = parseInt(document.getElementById('currentUnits').value) || 0;
+        itemData.totalUnits = totalUnits;
+        itemData.currentUnits = currentUnits;
+        
+        // Auto-complete if 100%
+        if (totalUnits > 0 && currentUnits >= totalUnits) {
+            const autoComplete = confirm('Progress is 100%. Mark as completed?');
+            if (autoComplete) {
+                const rating = parseFloat(document.getElementById('rating').value);
+                const comments = document.getElementById('comments').value;
+                itemData.status = 'completed';
